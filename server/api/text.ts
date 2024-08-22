@@ -3,13 +3,11 @@ import geminiModel from "../utils/geminiModel";
 export default defineEventHandler(async (event) => {
   const model = geminiModel();
   const eventPayload = await readBody(event);
-  if (eventPayload.chatModel != null) {
+  if (eventPayload.chatModel == null) {
     const chatModel = model.startChat({
       history: eventPayload.chatModel._history,
     });
-    console.log(chatModel);
     const chat = await chatModel.sendMessage(newFeedPromt);
-    console.log(chat);
     return { chat, chatModel };
   } else {
     const chatModel = model.startChat({});
