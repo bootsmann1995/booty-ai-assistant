@@ -68,7 +68,6 @@
 const { signUp } = useSupabaseFunc();
 
 const submitHandler = async (value) => {
-  const user = await signUp(value);
-  console.log(user);
+  const user = await signUp(value).then((res) => navigateTo("/login"));
 };
 </script>

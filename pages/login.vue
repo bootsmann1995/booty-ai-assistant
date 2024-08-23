@@ -38,6 +38,6 @@ const { login } = useSupabaseFunc();
 const route = useRoute();
 
 const submitHandler = async (value) => {
-  const user = await login({ ...value, redirectTo: route.query.redirectTo });
+  await login({ ...value, redirectTo: route.query.redirectTo });
 };
 </script>

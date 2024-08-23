@@ -40,7 +40,18 @@ export const useSupabaseFunc = () => {
           },
         },
       });
-      return newUser;
+      if (newUser.data.user) {
+        const { data, error } = await supabase.from("userinfo").insert([
+          {
+            id: newUser.data.user?.id,
+            data: newUser.data.user.user_metadata,
+          },
+        ] as any);
+        if (error) {
+          throw error;
+        }
+      }
+      return { ...newUser };
     } catch (error) {
       console.error("Error signing up:", error);
       throw error;
@@ -50,8 +61,21 @@ export const useSupabaseFunc = () => {
   const getUser = async () => {
     try {
       const fetchedUser = await supabase.auth.getUser();
-      user.value = fetchedUser.data.user;
-      return fetchedUser.data.user;
+      if (fetchedUser.data?.user) {
+        const databaseUser = await supabase
+          .from("userinfo")
+          .select("*")
+          .eq("id", fetchedUser.data.user.id);
+        user.value = fetchedUser.data.user;
+        if (databaseUser.data) {
+          return {
+            ...fetchedUser.data.user,
+            database: databaseUser.data[0],
+          };
+        } else {
+          return fetchedUser.data.user;
+        }
+      }
     } catch (error) {
       console.error("Error signing up:", error);
       throw error;
@@ -60,8 +84,17 @@ export const useSupabaseFunc = () => {
 
   const updateUser = async (data: any) => {
     try {
-      const updatedUser = await supabase.auth.updateUser({ data });
-      return updatedUser;
+      const fetchedUser = await supabase.auth.getUser();
+      if (fetchedUser.data?.user) {
+       const {error} = await supabase
+          .from("userinfo")
+          .update({ data } as never)
+          .eq("id", fetchedUser.data.user.id);
+
+          if(error) {
+            throw error}
+      } 
+      return await getUser()
     } catch (error) {
       console.error("Error updating user:", error);
       throw error;

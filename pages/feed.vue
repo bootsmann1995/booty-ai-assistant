@@ -1,21 +1,28 @@
 <template>
   <div>
     <div v-if="!isLoading">
-      user:
-      <pre>
-        {{ user }}
-      </pre>
+      <h1>Booty ai feed</h1>
+      <h2 v-if="user">
+        Hi Welcome back {{ user?.user_metadata?.first_name }}!
+      </h2>
     </div>
     <div v-else>
       <p>Loading...</p>
     </div>
 
-    <div>
+    <div v-if="!isLoadingFeed && feed">
       <h1>Feed</h1>
       <p>Here is the feed</p>
-      <pre>
-        {{ feed }}
-      </pre>
+
+      <div v-for="item in feed">
+        <h3 v-if="item.point">Subject: {{ item.point.subject }}</h3>
+        <Markdown v-if="item.chat" :source="item.chat"></Markdown>
+      </div>
+
+      <hr />
+    </div>
+    <div v-else>
+      <p>Loading feed...</p>
     </div>
 
     <button @click="addPointActive = true" v-if="!addPointActive">
@@ -73,6 +80,9 @@ const user = useState("user");
 const addPointActive = ref(false);
 const isLoading = ref(true);
 const isLoadingFeed = ref(true);
+definePageMeta({
+  middleware: ["auth"],
+});
 
 const feed = ref([]);
 
@@ -83,15 +93,16 @@ onMounted(async () => {
 const fetchUser = async () => {
   if (!user.value) {
     user.value = await getUser();
-    await fetchEducationalNews();
     isLoading.value = false;
+    isLoadingFeed.value = true;
+    await fetchEducationalNews();
   }
 };
 
 const addEducationPoint = async (value: any) => {
   isLoading.value = true;
   if (user.value && user.value) {
-    const currentPoints = user.value.user_metadata?.education_points ?? [];
+    const currentPoints = user.value.database?.data.education_points ?? [];
     try {
       user.value = await updateUser({
         education_points: [
@@ -107,42 +118,68 @@ const addEducationPoint = async (value: any) => {
       isLoading.value = false;
     }
   }
+  fetchEducationalNews();
 };
 
 const fetchEducationalNews = async () => {
-  const currentPoints = user.value?.user_metadata?.education_points ?? [];
-  const updateArr = await sendTextsAndSetFeed(currentPoints);
-  if (currentPoints && currentPoints.length > 0) {
-    user.value = await updateUser({
-      education_points: [...updateArr],
-    });
+  feed.value = [];
+  try {
+    const currentPoints = user.value?.database?.data.education_points ?? [];
+    const updateArr = await sendTextsAndSetFeed(currentPoints);
+    isLoadingFeed.value = false;
+    if (currentPoints && currentPoints.length > 0) {
+      const newUser = await updateUser({
+        education_points: updateArr,
+      });
+      user.value = newUser;
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
-const sendTextsAndSetFeed = async (currentPoints: any[]) => {
-  const feedArr: any[] = await Promise.all(
-    currentPoints.map(async (point) => {
-      const newPoint = { ...point };
-      try {
-        const feedItem = await $fetch("/api/text", {
-          method: "POST",
-          body: point,
-        });
-        feed.value.push({
-          point,
-          chat: feedItem.chat,
-        });
-        newPoint.last_prompt_fired = new Date();
-        newPoint.chatModel = feedItem.chatModel;
-        if (point.first_prompt_fired === false) {
-          newPoint.first_prompt_fired = true;
-        }
-      } catch (error) {
+async function sendTextsAndSetFeed(currentPoints: any[]) {
+  const updatedPoints = [];
+
+  for (const point of currentPoints) {
+    const newPoint = { ...point };
+
+    try {
+      const feedItem = await $fetch("/api/text", {
+        method: "POST",
+        body: point,
+      }).catch((error) => {
         console.error(error);
+        throw new Error("Failed to fetch feed");
+      });
+
+      feed.value.push({
+        point,
+        chat: feedItem.chat,
+      });
+
+      newPoint.last_prompt_fired = new Date();
+      newPoint.chatModel = feedItem.chatModel;
+
+      if (point.first_prompt_fired === false) {
+        newPoint.first_prompt_fired = true;
       }
-      return newPoint;
-    })
-  );
-  return feedArr;
-};
+
+      isLoadingFeed.value = false;
+
+      // Process and update point data
+      updatedPoints.push(await processPointWithDelay(newPoint)); // Call a separate function for delayed processing
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return updatedPoints;
+}
+
+async function processPointWithDelay(point) {
+  // Simulate 200m delay (replace with actual distance calculation if needed)
+  await new Promise((resolve) => setTimeout(resolve, 200)); // Adjust delayTime as needed
+  return point; // Or return modified point after processing
+}
 </script>
