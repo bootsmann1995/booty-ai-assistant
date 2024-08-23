@@ -31,7 +31,7 @@
               }}
             </p>
             <Markdown
-              class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:p-2 [&_pre]:my-4"
+              class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:max-w-full [&_pre]:overflow-scroll [&_pre]:p-2 [&_pre]:my-4"
               v-if="item.chat"
               :source="item.chat"
             ></Markdown>
