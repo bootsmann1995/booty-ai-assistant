@@ -1,75 +1,98 @@
 <template>
-  <div>
-    <div v-if="!isLoading">
-      <h1>Booty ai feed</h1>
-      <h2 v-if="user">
-        Hi Welcome back {{ user?.user_metadata?.first_name }}!
-      </h2>
-    </div>
-    <div v-else>
-      <p>Loading...</p>
-    </div>
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+      <div class="bg-gunmetal-500 px-6 text-baby-powder-500">
+        <div v-if="!isLoading">
+          <h1>Booty ai feed</h1>
+          <h2 v-if="user">
+            Hi Welcome back {{ user?.user_metadata?.first_name }}!
+          </h2>
+        </div>
+        <div v-else>
+          <p>Loading...</p>
+        </div>
 
-    <div v-if="!isLoadingFeed && feed">
-      <h1>Feed</h1>
-      <p>Here is the feed</p>
+        <div v-if="!isLoadingFeed && feed" class="my-6">
+          <h1 class="">Your Feed</h1>
 
-      <div v-for="item in feed">
-        <h3 v-if="item.point">Subject: {{ item.point.subject }}</h3>
-        <Markdown v-if="item.chat" :source="item.chat"></Markdown>
+          <div v-for="item in feed" class="">
+            <h3
+              class="font-roboto text-[20px] font-bold mb-3"
+              v-if="item.point"
+            >
+              Subject: {{ item.point.subject }}
+            </h3>
+            <p class="font-roboto font-medium mb-2">
+              Last updated:
+              {{
+                new Date(item.point.last_prompt_fired).toLocaleDateString(
+                  "da-DK"
+                )
+              }}
+            </p>
+            <Markdown
+              class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:p-2 [&_pre]:my-4"
+              v-if="item.chat"
+              :source="item.chat"
+            ></Markdown>
+
+            <hr class="my-5" />
+          </div>
+        </div>
+        <div v-else>
+          <p>Loading feed...</p>
+        </div>
+
+        <div class="mt-5">
+          <p class="">Looking for more?</p>
+          <button @click="addPointActive = true" v-if="!addPointActive">
+            Add point +
+          </button>
+          <div v-show="addPointActive">
+            <h2>add education points</h2>
+
+            <FormKit
+              type="form"
+              id="registration-example"
+              submit-label="Register"
+              @submit="addEducationPoint"
+              :actions="false"
+              #default="{ value }"
+            >
+              <FormKit
+                type="text"
+                name="subject"
+                label="subject"
+                placeholder="Jane"
+                help="What do people call you?"
+                validation="required"
+              />
+              <FormKit
+                type="radio"
+                name="education_type"
+                label="Education type"
+                :options="[
+                  'News',
+                  'News with examples',
+                  'Learning',
+                  'Learning with examples',
+                ]"
+                help="How would you like to be smarter?"
+              />
+              <FormKit
+                type="text"
+                name="tags"
+                label="Add tags for better education"
+                placeholder="tag, tag, tag"
+                help="Write tags regarding your education subject"
+                validation="required"
+              />
+
+              <FormKit type="submit" label="Register" />
+            </FormKit>
+          </div>
+        </div>
       </div>
-
-      <hr />
-    </div>
-    <div v-else>
-      <p>Loading feed...</p>
-    </div>
-
-    <button @click="addPointActive = true" v-if="!addPointActive">
-      Add point +
-    </button>
-    <div v-show="addPointActive">
-      <h2>add education points</h2>
-
-      <FormKit
-        type="form"
-        id="registration-example"
-        submit-label="Register"
-        @submit="addEducationPoint"
-        :actions="false"
-        #default="{ value }"
-      >
-        <FormKit
-          type="text"
-          name="subject"
-          label="subject"
-          placeholder="Jane"
-          help="What do people call you?"
-          validation="required"
-        />
-        <FormKit
-          type="radio"
-          name="education_type"
-          label="Education type"
-          :options="[
-            'News',
-            'News with examples',
-            'Learning',
-            'Learning with examples',
-          ]"
-          help="How would you like to be smarter?"
-        />
-        <FormKit
-          type="text"
-          name="tags"
-          label="Add tags for better education"
-          placeholder="tag, tag, tag"
-          help="Write tags regarding your education subject"
-          validation="required"
-        />
-
-        <FormKit type="submit" label="Register" />
-      </FormKit>
     </div>
   </div>
 </template>
@@ -80,6 +103,8 @@ const user = useState("user");
 const addPointActive = ref(false);
 const isLoading = ref(true);
 const isLoadingFeed = ref(true);
+const gs = useGsap();
+
 definePageMeta({
   middleware: ["auth"],
 });
@@ -158,7 +183,9 @@ async function sendTextsAndSetFeed(currentPoints: any[]) {
         chat: feedItem.chat,
       });
 
-      newPoint.last_prompt_fired = new Date();
+      if (!feedItem.cancelUpdateDate) {
+        newPoint.last_prompt_fired = new Date();
+      }
       newPoint.chatModel = feedItem.chatModel;
 
       if (point.first_prompt_fired === false) {

@@ -3,7 +3,6 @@ import geminiModel from "../utils/geminiModel";
 export default defineEventHandler(async (event) => {
   const model = geminiModel();
   const eventPayload = await readBody(event);
-  const d = new Date();
 
   if (
     eventPayload != null &&
@@ -28,6 +27,7 @@ export default defineEventHandler(async (event) => {
     return {
       chat: text,
       chatModel: eventPayload.chatModel,
+      cancelUpdateDate: true,
     };
   }
   if (eventPayload.chatModel != null) {
