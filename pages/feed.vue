@@ -64,10 +64,11 @@
             <FormKit
               type="form"
               id="registration-example"
+              ref="form"
               submit-label="Register"
               @submit="addEducationPoint"
               :actions="false"
-              #default="{ value }"
+              v-model="model"
             >
               <FormKit
                 type="text"
@@ -126,6 +127,9 @@ const addPointActive = ref(false);
 const isLoading = ref(true);
 const isLoadingFeed = ref(true);
 const gs = useGsap();
+const form = ref(null);
+const nuxtApp = useNuxtApp();
+const model = ref({});
 
 definePageMeta({
   middleware: ["auth"],
@@ -168,7 +172,10 @@ const addEducationPoint = async (value: any) => {
       isLoading.value = false;
     }
   }
+
   fetchEducationalNews();
+  model.value = {};
+  return;
 };
 
 const fetchEducationalNews = async () => {
