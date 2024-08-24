@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     eventPayload != null &&
     eventPayload.last_prompt_fired != null &&
     eventPayload.chatModel != null &&
-    !isDateWithinTwoHours(eventPayload.last_prompt_fired)
+    isDateWithinTwoHours(new Date(eventPayload.last_prompt_fired))
   ) {
     const lastChat =
       eventPayload.chatModel._history &&
@@ -30,17 +30,6 @@ export default defineEventHandler(async (event) => {
       cancelUpdateDate: true,
     };
   }
-  if (eventPayload.chatModel != null) {
-    const chatModel = model.startChat({
-      history: eventPayload.chatModel._history,
-    });
-    const chat = await chatModel.sendMessage(newFeedPromt);
-    return { chat: chat.response.text(), chatModel };
-  } else {
-    const chatModel = model.startChat({});
-    const chat = await chatModel.sendMessage(firstPromt(eventPayload));
-    return { chat: chat.response.text(), chatModel };
-  }
 });
 
 const firstPromt = (obj: {
@@ -50,15 +39,15 @@ const firstPromt = (obj: {
   language: string;
 }) => {
   return `
-You are a knowledgeable and engaging teacher. 
-Your goal is to provide clear, concise, 
+You are a knowledgeable and engaging teacher.
+Your goal is to provide clear, concise,
 and informative responses to the user's queries on the given subject.
 
-Please respond in a conversational tone, 
+Please respond in a conversational tone,
 using examples and analogies where appropriate.
 Try not to repeat yourself.
 If you ask a question, try to answer it yourself as well.
-The way you respond should be engaging and informative and talk like your a blog post not talking to a person. 
+The way you respond should be engaging and informative and talk like your a blog post not talking to a person.
 Remember to tailor your responses to the user's level of understanding and interests.
 Please get your knowledge from this day on ${new Date().toDateString()}.
 
