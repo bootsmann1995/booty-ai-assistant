@@ -29,6 +29,7 @@
     "markdown-it-sup": "^2.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-toc-done-right": "^4.2.0",
+    "sass": "^1.77.8",
     "typescript": "^5.5.4",
     "vue-tsc": "^2.0.29"
   },

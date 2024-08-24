@@ -14,7 +14,9 @@
 
         <div v-if="!isLoadingFeed && feed" class="my-6">
           <h1 class="">Your Feed</h1>
-
+          <p v-if="feed.length === 0">
+            You got no items in your feed! add points to learn
+          </p>
           <div v-for="item in feed" class="">
             <h3
               class="font-roboto text-[20px] font-bold mb-3"
@@ -29,9 +31,14 @@
                   "da-DK"
                 )
               }}
+              {{
+                new Date(item.point.last_prompt_fired).toLocaleTimeString(
+                  "da-DK"
+                )
+              }}
             </p>
             <Markdown
-              class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:max-w-full [&_pre]:overflow-scroll [&_pre]:p-2 [&_pre]:my-4"
+              class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:max-w-full [&_pre]:overflow-auto [&_pre]:p-2 [&_pre]:my-4"
               v-if="item.chat"
               :source="item.chat"
             ></Markdown>
@@ -48,7 +55,10 @@
           <button @click="addPointActive = true" v-if="!addPointActive">
             Add point +
           </button>
-          <div v-show="addPointActive">
+          <div
+            v-show="addPointActive"
+            class="[&_.formkit-input]:text-gunmetal-400"
+          >
             <h2>add education points</h2>
 
             <FormKit
@@ -63,14 +73,15 @@
                 type="text"
                 name="subject"
                 label="subject"
-                placeholder="Jane"
-                help="What do people call you?"
+                placeholder="Eg. Css3 coding, beginner skill, animation as speciality"
+                class=""
                 validation="required"
               />
               <FormKit
                 type="radio"
                 name="education_type"
                 label="Education type"
+                validation="required"
                 :options="[
                   'News',
                   'News with examples',
@@ -78,6 +89,13 @@
                   'Learning with examples',
                 ]"
                 help="How would you like to be smarter?"
+              />
+              <FormKit
+                type="radio"
+                name="language"
+                validation="required"
+                label="Language"
+                :options="['Engelsk', 'Dansk']"
               />
               <FormKit
                 type="text"
@@ -88,7 +106,11 @@
                 validation="required"
               />
 
-              <FormKit type="submit" label="Register" />
+              <div
+                class="[&_.formkit-input]:text-baby-powder-500 [&_.formkit-input]:bg-lavender-500 [&_.formkit-input]:px-3 [&_.formkit-input]:py-1"
+              >
+                <FormKit type="submit" label="Register" />
+              </div>
             </FormKit>
           </div>
         </div>
@@ -120,6 +142,9 @@ const fetchUser = async () => {
     user.value = await getUser();
     isLoading.value = false;
     isLoadingFeed.value = true;
+    await fetchEducationalNews();
+  } else {
+    isLoading.value = false;
     await fetchEducationalNews();
   }
 };
@@ -178,14 +203,10 @@ async function sendTextsAndSetFeed(currentPoints: any[]) {
         throw new Error("Failed to fetch feed");
       });
 
-      feed.value.push({
-        point,
-        chat: feedItem.chat,
-      });
-
       if (!feedItem.cancelUpdateDate) {
         newPoint.last_prompt_fired = new Date();
       }
+
       newPoint.chatModel = feedItem.chatModel;
 
       if (point.first_prompt_fired === false) {
@@ -193,7 +214,10 @@ async function sendTextsAndSetFeed(currentPoints: any[]) {
       }
 
       isLoadingFeed.value = false;
-
+      feed.value.push({
+        point: newPoint,
+        chat: feedItem.chat,
+      });
       // Process and update point data
       updatedPoints.push(await processPointWithDelay(newPoint)); // Call a separate function for delayed processing
     } catch (error) {

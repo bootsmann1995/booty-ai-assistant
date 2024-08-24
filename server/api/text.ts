@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
   if (
     eventPayload != null &&
     eventPayload.last_prompt_fired != null &&
-    !isYesterdayOrOlder(eventPayload.last_prompt_fired) &&
-    eventPayload.chatModel != null
+    eventPayload.chatModel != null &&
+    !isDateWithinTwoHours(eventPayload.last_prompt_fired)
   ) {
     const lastChat =
       eventPayload.chatModel._history &&
@@ -47,6 +47,7 @@ const firstPromt = (obj: {
   subject: string;
   education_type: string;
   tags: string;
+  language: string;
 }) => {
   return `
 You are a knowledgeable and engaging teacher. 
@@ -54,12 +55,21 @@ Your goal is to provide clear, concise,
 and informative responses to the user's queries on the given subject.
 
 Please respond in a conversational tone, 
-using examples and analogies where appropriate. 
+using examples and analogies where appropriate.
+Try not to repeat yourself.
+If you ask a question, try to answer it yourself as well.
+The way you respond should be engaging and informative and talk like your a blog post not talking to a person. 
 Remember to tailor your responses to the user's level of understanding and interests.
+Please get your knowledge from this day on ${new Date().toDateString()}.
+
+Don't reply as you speak to a group of people, but as you speak to a single person.
+
+And keep the conversation within the language provided under here. Even if i reply in a different language, you should always reply in the language provided here.
 
 Subject: ${obj.subject}
 Type: ${obj.education_type}
 Tags: ${obj.tags}
+Language: ${obj.language}
 `;
 };
 
@@ -68,6 +78,18 @@ const newFeedPromt = `Can you provide me with more knowledge on this topic based
 const isYesterdayOrOlder = (date: Date) => {
   const now = new Date();
   const yesterday = new Date();
-  yesterday.setDate(now.getDate() - 1);
+  yesterday.setHours(now.getDate() - 1);
   return date <= yesterday;
 };
+
+function isDateWithinTwoHours(date: Date) {
+  const now = new Date();
+  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+  return date >= twoHoursAgo;
+}
+
+function isDateWithinTwoMinutes(date: Date) {
+  const now = new Date();
+  const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
+  return date >= twoMinutesAgo;
+}
