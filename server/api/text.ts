@@ -64,7 +64,11 @@ Please get your knowledge from this day on ${new Date().toDateString()}.
 
 Don't reply as you speak to a group of people, but as you speak to a single person.
 
+Please reply like i can't reply back to you, only provide information, This is not a conversation.
+
 And keep the conversation within the language provided under here. Even if i reply in a different language, you should always reply in the language provided here.
+The tags provided down under is just to give you a hint on what i'm interested in, you don't have to use them in your response only to focus your information around these.
+
 
 Subject: ${obj.subject}
 Type: ${obj.education_type}

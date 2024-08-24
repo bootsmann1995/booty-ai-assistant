@@ -167,6 +167,7 @@ const addEducationPoint = async (value: any) => {
       addPointActive.value = false;
     } catch (error) {
       console.error(error);
+      alert("Failed to add point" + error);
       throw new Error("Failed to update user");
     } finally {
       isLoading.value = false;
