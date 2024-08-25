@@ -24,11 +24,26 @@ export default defineEventHandler(async (event) => {
     ) {
       text = lastChat[lastChat.length - 1].parts[0].text;
     }
+
     return {
       chat: text,
       chatModel: eventPayload.chatModel,
       cancelUpdateDate: true,
     };
+  }
+
+  console.log(eventPayload);
+
+  if (eventPayload.chatModel != null) {
+    const chatModel = model.startChat({
+      history: eventPayload.chatModel._history,
+    });
+    const chat = await chatModel.sendMessage(newFeedPromt);
+    return { chat: chat.response.text(), chatModel };
+  } else {
+    const chatModel = model.startChat({});
+    const chat = await chatModel.sendMessage(firstPromt(eventPayload));
+    return { chat: chat.response.text(), chatModel };
   }
 });
 

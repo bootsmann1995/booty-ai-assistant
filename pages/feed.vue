@@ -198,7 +198,7 @@ const fetchEducationalNews = async () => {
 
 async function sendTextsAndSetFeed(currentPoints: any[]) {
   const updatedPoints = [];
-
+  console.log(currentPoints);
   for (const point of currentPoints) {
     const newPoint = { ...point };
 
