@@ -7,8 +7,7 @@ export default defineEventHandler(async (event) => {
   if (
     eventPayload != null &&
     eventPayload.last_prompt_fired != null &&
-    eventPayload.chatModel != null &&
-    isDateWithinTwoHours(new Date(eventPayload.last_prompt_fired))
+    eventPayload.chatModel != null
   ) {
     const lastChat =
       eventPayload.chatModel._history &&
@@ -31,8 +30,6 @@ export default defineEventHandler(async (event) => {
       cancelUpdateDate: true,
     };
   }
-
-  console.log(eventPayload);
 
   if (eventPayload.chatModel != null) {
     const chatModel = model.startChat({
@@ -73,6 +70,7 @@ Please reply like i can't reply back to you, only provide information, This is n
 And keep the conversation within the language provided under here. Even if i reply in a different language, you should always reply in the language provided here.
 The tags provided down under is just to give you a hint on what i'm interested in, you don't have to use them in your response only to focus your information around these.
 
+Can you respond with a short answer and only with one subject at a time, i will ask for more if needed.
 
 Subject: ${obj.subject}
 Type: ${obj.education_type}
@@ -81,23 +79,11 @@ Language: ${obj.language}
 `;
 };
 
-const newFeedPromt = `Can you provide me with more knowledge on this topic based on the Subject, based on the type of education i chose, and taken the tags i provided in consideration? answer like i didn't ask, but like you are a news stand / a blog writing an article to me.`;
-
-const isYesterdayOrOlder = (date: Date) => {
-  const now = new Date();
-  const yesterday = new Date();
-  yesterday.setHours(now.getDate() - 1);
-  return date <= yesterday;
-};
-
-function isDateWithinTwoHours(date: Date) {
-  const now = new Date();
-  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
-  return date >= twoHoursAgo;
-}
-
-function isDateWithinTwoMinutes(date: Date) {
-  const now = new Date();
-  const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
-  return date >= twoMinutesAgo;
-}
+const newFeedPromt = `
+Act like the last information you provided was a lesson and you should not give more information on that topic now cover a new area of the Subject.
+You are a knowledgeable and engaging teacher, and this is a new lesson.
+if the type includes examples, try to provide examples. either in code or in what type you are explaining.
+Can you provide me with a new knowledge based on the Subject, type of education i chose, and taken the tags i provided in consideration? 
+Try to work on different examples each time, and different perspectivse, so you don't repeat yourself to much.
+You should answer like i didn't ask, but like you are a news stand / a blog writing an article to me. 
+Can you boil down your answer to minimum output maybe within 3-4 sentences?`;

@@ -19,6 +19,7 @@
     "@formkit/nuxt": "^1.6.5",
     "@google/generative-ai": "^0.17.0",
     "@types/gsap": "^3.0.0",
+    "@types/three": "^0.169.0",
     "gsap": "npm:@gsap/shockingly@^3.12.5",
     "markdown-it": "^14.1.0",
     "markdown-it-abbr": "^2.0.0",
@@ -30,6 +31,8 @@
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-toc-done-right": "^4.2.0",
     "sass": "^1.77.8",
+    "swiper": "^11.1.14",
+    "three": "^0.169.0",
     "typescript": "^5.5.4",
     "vue-tsc": "^2.0.29"
   },

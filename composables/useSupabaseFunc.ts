@@ -86,15 +86,16 @@ export const useSupabaseFunc = () => {
     try {
       const fetchedUser = await supabase.auth.getUser();
       if (fetchedUser.data?.user) {
-       const {error} = await supabase
+        const { error } = await supabase
           .from("userinfo")
-          .update({ data } as never)
+          .upsert({ data, id: fetchedUser.data?.user.id } as never)
           .eq("id", fetchedUser.data.user.id);
 
-          if(error) {
-            throw error}
-      } 
-      return await getUser()
+        if (error) {
+          throw error;
+        }
+      }
+      return await getUser();
     } catch (error) {
       console.error("Error updating user:", error);
       throw error;

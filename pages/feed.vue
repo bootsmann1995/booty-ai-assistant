@@ -1,118 +1,139 @@
 <template>
-  <div id="smooth-wrapper">
-    <div id="smooth-content">
-      <div class="bg-gunmetal-500 px-6 text-baby-powder-500">
-        <div v-if="!isLoading">
-          <h1>Booty ai feed</h1>
-          <h2 v-if="user">
-            Hi Welcome back {{ user?.user_metadata?.first_name }}!
-          </h2>
-        </div>
-        <div v-else>
-          <p>Loading...</p>
-        </div>
-
-        <div v-if="!isLoadingFeed && feed" class="my-6">
-          <h1 class="">Your Feed</h1>
-          <p v-if="feed.length === 0">
-            You got no items in your feed! add points to learn
-          </p>
-          <div v-for="item in feed" class="">
-            <h3
-              class="font-roboto text-[20px] font-bold mb-3"
-              v-if="item.point"
-            >
-              Subject: {{ item.point.subject }}
-            </h3>
-            <p class="font-roboto font-medium mb-2">
-              Last updated:
-              {{
-                new Date(item.point.last_prompt_fired).toLocaleDateString(
-                  "da-DK"
-                )
-              }}
-              {{
-                new Date(item.point.last_prompt_fired).toLocaleTimeString(
-                  "da-DK"
-                )
-              }}
-            </p>
-            <Markdown
-              class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:max-w-full [&_pre]:overflow-auto [&_pre]:p-2 [&_pre]:my-4"
-              v-if="item.chat"
-              :source="item.chat"
-            ></Markdown>
-
-            <hr class="my-5" />
-          </div>
-        </div>
-        <div v-else>
-          <p>Loading feed...</p>
-        </div>
-
-        <div class="mt-5">
-          <p class="">Looking for more?</p>
-          <button @click="addPointActive = true" v-if="!addPointActive">
-            Add point +
-          </button>
-          <div
-            v-show="addPointActive"
-            class="[&_.formkit-input]:text-gunmetal-400"
-          >
-            <h2>add education points</h2>
-
-            <FormKit
-              type="form"
-              id="registration-example"
-              ref="form"
-              submit-label="Register"
-              @submit="addEducationPoint"
-              :actions="false"
-              v-model="model"
-            >
-              <FormKit
-                type="text"
-                name="subject"
-                label="subject"
-                placeholder="Eg. Css3 coding, beginner skill, animation as speciality"
-                class=""
-                validation="required"
-              />
-              <FormKit
-                type="radio"
-                name="education_type"
-                label="Education type"
-                validation="required"
-                :options="[
-                  'News',
-                  'News with examples',
-                  'Learning',
-                  'Learning with examples',
-                ]"
-                help="How would you like to be smarter?"
-              />
-              <FormKit
-                type="radio"
-                name="language"
-                validation="required"
-                label="Language"
-                :options="['Engelsk', 'Dansk']"
-              />
-              <FormKit
-                type="text"
-                name="tags"
-                label="Add tags for better education"
-                placeholder="tag, tag, tag"
-                help="Write tags regarding your education subject"
-                validation="required"
-              />
-
-              <div
-                class="[&_.formkit-input]:text-baby-powder-500 [&_.formkit-input]:bg-lavender-500 [&_.formkit-input]:px-3 [&_.formkit-input]:py-1"
-              >
-                <FormKit type="submit" label="Register" />
+  <div>
+    <div>
+      <div class="h-screen">
+        <Swiper
+          :direction="'vertical'"
+          slides-per-view="1"
+          class="mySwiper w-full h-full"
+          @init="initSwiper"
+          @slide-next-transition-end="fetchNextItem()"
+        >
+          <SwiperSlide>
+            <div class="bg-gunmetal-500 px-6 text-baby-powder-500 h-full">
+              <div v-if="!isLoading">
+                <h1>Booty ai feed</h1>
+                <h2 v-if="user">
+                  Hi Welcome back {{ user?.user_metadata?.first_name }}!
+                </h2>
               </div>
-            </FormKit>
+              <div v-else>
+                <p>Loading...</p>
+              </div>
+
+              <div class="my-6">
+                <h1 class="">Your Feed</h1>
+
+                <div v-if="feed[0]" class="">
+                  <h3
+                    class="font-roboto text-[20px] font-bold mb-3"
+                    v-if="feed[0].point"
+                  >
+                    Subject: {{ feed[0].point.subject }}
+                  </h3>
+
+                  <Markdown
+                    class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:max-w-full [&_pre]:overflow-auto [&_pre]:p-2 [&_pre]:my-4"
+                    v-if="feed[0].chat"
+                    :source="feed[0].chat"
+                  ></Markdown>
+
+                  <hr class="my-5" />
+                </div>
+              </div>
+            </div>
+          </SwiperSlide>
+          <SwiperSlide v-for="item in feed.slice(1, feed.length)">
+            <div
+              class="bg-gunmetal-500 px-6 text-baby-powder-500 h-full max-h-full overflow-y-auto flex items-center"
+            >
+              <div v-if="item" class="">
+                <h3
+                  class="font-roboto text-[20px] font-bold mb-3"
+                  v-if="item.point"
+                >
+                  Subject: {{ item.point.subject }}
+                </h3>
+
+                <Markdown
+                  class="[&_ol>li]:list-decimal [&_ul>li]:list-disc [&_ol]:pl-7 [&_ul]:pl-7 [&_p]:mb-4 [&_li]:my-4 [&_pre]:bg-gunmetal-400 [&_pre]:rounded-md [&_pre]:w-min [&_pre]:max-w-full [&_pre]:overflow-auto [&_pre]:p-2 [&_pre]:my-4"
+                  v-if="item.chat"
+                  :source="item.chat"
+                ></Markdown>
+
+                <hr class="my-5" />
+              </div>
+            </div>
+          </SwiperSlide>
+        </Swiper>
+      </div>
+
+      <div class="fixed left-0 bottom-0 bg-white">
+        <div class="bg-gunmetal-500 px-6 text-baby-powder-500">
+          <div class="mt-5">
+            <p class="">Looking for more?</p>
+            <button @click="addPointActive = true" v-if="!addPointActive">
+              Add point +
+            </button>
+            <div
+              v-show="addPointActive"
+              class="[&_.formkit-input]:text-gunmetal-400"
+            >
+              <h2>add education points</h2>
+
+              <FormKit
+                type="form"
+                id="registration-example"
+                ref="form"
+                submit-label="Register"
+                @submit="addEducationPoint"
+                :actions="false"
+                v-model="model"
+              >
+                <FormKit
+                  type="text"
+                  name="subject"
+                  label="subject"
+                  placeholder="Eg. Css3 coding, beginner skill, animation as speciality"
+                  class=""
+                  validation="required"
+                />
+                <FormKit
+                  type="radio"
+                  name="education_type"
+                  label="Education type"
+                  validation="required"
+                  :options="[
+                    'News',
+                    'News with examples',
+                    'Learning',
+                    'Learning with examples',
+                  ]"
+                  help="How would you like to be smarter?"
+                />
+                <FormKit
+                  type="radio"
+                  name="language"
+                  validation="required"
+                  label="Language"
+                  :options="['Engelsk', 'Dansk']"
+                />
+                <FormKit
+                  type="text"
+                  name="tags"
+                  label="Add tags for better education"
+                  placeholder="tag, tag, tag"
+                  help="Write tags regarding your education subject"
+                  validation="required"
+                />
+
+                <div
+                  class="[&_.formkit-input]:text-baby-powder-500 [&_.formkit-input]:bg-lavender-500 [&_.formkit-input]:px-3 [&_.formkit-input]:py-1"
+                >
+                  <FormKit type="submit" label="Register" />
+                </div>
+              </FormKit>
+            </div>
           </div>
         </div>
       </div>
@@ -121,15 +142,18 @@
 </template>
 
 <script lang="ts" setup>
+import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
 const { getUser, updateUser } = useSupabaseFunc();
 const user = useState("user");
 const addPointActive = ref(false);
 const isLoading = ref(true);
-const isLoadingFeed = ref(true);
+const isLoadingFeed = ref(false);
 const gs = useGsap();
 const form = ref(null);
 const nuxtApp = useNuxtApp();
 const model = ref({});
+const swip = ref();
 
 definePageMeta({
   middleware: ["auth"],
@@ -141,16 +165,54 @@ onMounted(async () => {
   await fetchUser();
 });
 
+const initSwiper = (s: any) => {
+  swip.value = s;
+};
+
+const fetchNextItem = () => {
+  swip.value.activeIndex === feed.value.length - 1
+    ? fetchEducationalNews()
+    : null;
+  fetchEducationalNews();
+};
+
 const fetchUser = async () => {
   if (!user.value) {
     user.value = await getUser();
     isLoading.value = false;
-    isLoadingFeed.value = true;
-    await fetchEducationalNews();
+    fetchEducationalNews();
   } else {
     isLoading.value = false;
-    await fetchEducationalNews();
   }
+
+  getLastFeed();
+};
+
+const getLastFeed = async () => {
+  user.value?.database?.data.education_points.forEach((point: any) => {
+    if (point?.isLastUpdated === true) {
+      feed.value.push({
+        point: point,
+        chat:
+          getLastModelObject(point.chatModel._history) != null
+            ? getLastModelObject(point.chatModel._history).parts[0].text
+            : "",
+      });
+    }
+  });
+};
+
+const getLastModelObject = (data: any) => {
+  let lastModelObject = null;
+
+  for (let i = data.length - 1; i >= 0; i--) {
+    if (data[i].role === "model") {
+      lastModelObject = data[i];
+      break; // Exit the loop once the last model object is found
+    }
+  }
+
+  return lastModelObject;
 };
 
 const addEducationPoint = async (value: any) => {
@@ -174,13 +236,13 @@ const addEducationPoint = async (value: any) => {
     }
   }
 
-  fetchEducationalNews();
+  await fetchEducationalNews();
   model.value = {};
   return;
 };
 
 const fetchEducationalNews = async () => {
-  feed.value = [];
+  isLoadingFeed.value = true;
   try {
     const currentPoints = user.value?.database?.data.education_points ?? [];
     const updateArr = await sendTextsAndSetFeed(currentPoints);
@@ -193,50 +255,53 @@ const fetchEducationalNews = async () => {
     }
   } catch (error) {
     console.error(error);
+  } finally {
+    isLoadingFeed.value = false;
   }
 };
 
 async function sendTextsAndSetFeed(currentPoints: any[]) {
-  const updatedPoints = [];
-  console.log(currentPoints);
-  for (const point of currentPoints) {
-    const newPoint = { ...point };
+  const index = Math.floor(Math.random() * currentPoints.length);
 
-    try {
-      const feedItem = await $fetch("/api/text", {
-        method: "POST",
-        body: point,
-      }).catch((error) => {
-        console.error(error);
-        throw new Error("Failed to fetch feed");
-      });
+  const newPoint = { ...currentPoints[index] };
 
-      if (!feedItem.cancelUpdateDate) {
-        newPoint.last_prompt_fired = new Date();
-      }
-
-      newPoint.chatModel = feedItem.chatModel;
-
-      if (point.first_prompt_fired === false) {
-        newPoint.first_prompt_fired = true;
-      }
-
-      isLoadingFeed.value = false;
-      feed.value.push({
-        point: newPoint,
-        chat: feedItem.chat,
-      });
-      // Process and update point data
-      updatedPoints.push(await processPointWithDelay(newPoint)); // Call a separate function for delayed processing
-    } catch (error) {
+  try {
+    const feedItem = await $fetch("/api/text", {
+      method: "POST",
+      body: currentPoints[index],
+    }).catch((error) => {
       console.error(error);
-    }
-  }
+      throw new Error("Failed to fetch feed");
+    });
+    currentPoints.forEach((element) => {
+      element != null &&
+      element.point != null &&
+      element.element.isLastUpdated != null
+        ? (element.point.isLastUpdated = false)
+        : null;
+    });
+    newPoint.isLastUpdated = true;
 
-  return updatedPoints;
+    newPoint.chatModel = feedItem.chatModel;
+
+    if (currentPoints[index].first_prompt_fired === false) {
+      newPoint.first_prompt_fired = true;
+    }
+
+    isLoadingFeed.value = false;
+    feed.value.push({
+      point: newPoint,
+      chat: feedItem.chat,
+    });
+    currentPoints[index] = newPoint;
+  } catch (error) {
+    console.error(error);
+  }
+  console.log(currentPoints);
+  return currentPoints;
 }
 
-async function processPointWithDelay(point) {
+async function processPointWithDelay(point: any) {
   // Simulate 200m delay (replace with actual distance calculation if needed)
   await new Promise((resolve) => setTimeout(resolve, 200)); // Adjust delayTime as needed
   return point; // Or return modified point after processing
