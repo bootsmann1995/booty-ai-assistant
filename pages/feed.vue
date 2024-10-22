@@ -26,6 +26,15 @@
               <div class="my-6">
                 <h1 class="">Your Feed</h1>
 
+                <NuxtLink
+                  v-if="
+                    user.value?.database?.data?.education_points != null &&
+                    user.value?.database?.data?.education_points.length === 0
+                  "
+                  to="/add-point"
+                  >You got no points add one here</NuxtLink
+                >
+
                 <div v-if="feed[0]" class="">
                   <h3
                     class="font-roboto text-[20px] font-bold mb-3"
