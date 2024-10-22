@@ -94,13 +94,12 @@ const fetchUser = async () => {
   } else {
     isLoading.value = false;
   }
-
-  getLastFeed();
 };
 
 const addEducationPoint = async (value: any) => {
   isLoading.value = true;
-  if (user.value && user.value) {
+  console.log(value);
+  if (user.value) {
     const currentPoints = user.value.database?.data.education_points ?? [];
     try {
       user.value = await updateUser({

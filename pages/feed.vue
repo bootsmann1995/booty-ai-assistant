@@ -165,6 +165,7 @@ const fetchEducationalNews = async () => {
 };
 
 async function sendTextsAndSetFeed(currentPoints: any[]) {
+  console.log(currentPoints);
   const index = Math.floor(Math.random() * currentPoints.length);
 
   const newPoint = { ...currentPoints[index] };
@@ -201,7 +202,6 @@ async function sendTextsAndSetFeed(currentPoints: any[]) {
   } catch (error) {
     console.error(error);
   }
-  console.log(currentPoints);
   return currentPoints;
 }
 
