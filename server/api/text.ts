@@ -39,12 +39,52 @@ export default defineEventHandler(async (event) => {
     return { chat: chat.response.text(), chatModel };
   } else {
     const chatModel = model.startChat({});
-    const chat = await chatModel.sendMessage(firstPromt(eventPayload));
-    return { chat: chat.response.text(), chatModel };
+    if (
+      eventPayload.education_type &&
+      (eventPayload.education_type == "News" ||
+        eventPayload.education_type == "News with examples")
+    ) {
+      const chat = await chatModel.sendMessage(
+        firstPromtNewsPromt(eventPayload)
+      );
+      return { chat: chat.response.text(), chatModel };
+    } else {
+      const chat = await chatModel.sendMessage(
+        firstPromtLearningPromt(eventPayload)
+      );
+      return { chat: chat.response.text(), chatModel };
+    }
   }
 });
 
-const firstPromt = (obj: {
+const firstPromtNewsPromt = (obj: {
+  subject: string;
+  education_type: string;
+  tags: string;
+  language: string;
+}) => {
+  return `
+
+  You are a news host, and you are providing the latest information on ${
+    obj.subject
+  }.
+  Your goal is to provide clear, concise, and informative responses.
+  I want my information based on: ${obj.education_type}.
+  Try to provide examples where appropriate.
+  Don't ask questions, but provide answers.
+  Talk like you are post on a feed.
+  Please get your knowledge from this day on ${new Date().toDateString()} or the closest date you got your knowlegde from.
+  Don't reply as you speak to a group of people, but as you speak to a single person.
+  Only provide information, This is not a conversation.
+  Don't repeat yourself.
+  Only answer in this language: ${obj.language}.
+  Can you respond with a short answer and only with one subject at a time, i will ask for more if needed.
+  Tags to get more understanding on my subject: ${obj.tags}
+  
+`;
+};
+
+const firstPromtLearningPromt = (obj: {
   subject: string;
   education_type: string;
   tags: string;
@@ -53,37 +93,31 @@ const firstPromt = (obj: {
   return `
 You are a knowledgeable and engaging teacher.
 Your goal is to provide clear, concise,
-and informative responses to the user's queries on the given subject.
+and informative responses this subject ${obj.subject}.
+I want my information based on: ${obj.education_type}.
 
-Please respond in a conversational tone,
-using examples and analogies where appropriate.
+Using examples and analogies where appropriate.
 Try not to repeat yourself.
-If you ask a question, try to answer it yourself as well.
-The way you respond should be engaging and informative and talk like your a blog post not talking to a person.
-Remember to tailor your responses to the user's level of understanding and interests.
-Please get your knowledge from this day on ${new Date().toDateString()}.
+Don't ask questions, but provide answers.
+Talk like you are post on a feed.
 
+Please get your knowledge from this day on ${new Date().toDateString()} or the closest date you got your knowlegde from.
 Don't reply as you speak to a group of people, but as you speak to a single person.
+Only provide information, This is not a conversation.
 
-Please reply like i can't reply back to you, only provide information, This is not a conversation.
-
-And keep the conversation within the language provided under here. Even if i reply in a different language, you should always reply in the language provided here.
-The tags provided down under is just to give you a hint on what i'm interested in, you don't have to use them in your response only to focus your information around these.
+Only answer in this language: ${obj.language}.
 
 Can you respond with a short answer and only with one subject at a time, i will ask for more if needed.
 
-Subject: ${obj.subject}
-Type: ${obj.education_type}
-Tags: ${obj.tags}
-Language: ${obj.language}
+Tags to get more understanding on my subject: ${obj.tags}
 `;
 };
 
 const newFeedPromt = `
-Act like the last information you provided was a lesson and you should not give more information on that topic now cover a new area of the Subject.
-You are a knowledgeable and engaging teacher, and this is a new lesson.
-if the type includes examples, try to provide examples. either in code or in what type you are explaining.
-Can you provide me with a new knowledge based on the Subject, type of education i chose, and taken the tags i provided in consideration? 
+Give me more information on the subject we are talking about.
+This is a clean answer based on the subject, language og tags I provided.
+Don't repeat yourself.
+Don't ask questions, but provide answers.
 Try to work on different examples each time, and different perspectivse, so you don't repeat yourself to much.
 You should answer like i didn't ask, but like you are a news stand / a blog writing an article to me. 
 Can you boil down your answer to minimum output maybe within 3-4 sentences?`;

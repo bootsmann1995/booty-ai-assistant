@@ -86,6 +86,7 @@ export const useSupabaseFunc = () => {
     try {
       const fetchedUser = await supabase.auth.getUser();
       if (fetchedUser.data?.user) {
+        console.log("DATA", data);
         const { error } = await supabase
           .from("userinfo")
           .upsert({ data, id: fetchedUser.data?.user.id } as never)

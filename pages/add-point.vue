@@ -109,6 +109,7 @@ const addEducationPoint = async (value: any) => {
         ],
       });
       addPointActive.value = false;
+      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Failed to add point" + error);

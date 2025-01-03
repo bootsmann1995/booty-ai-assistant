@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     database: true,
   },
 
-  modules: ["@nuxtjs/supabase", "@formkit/nuxt", "@nuxtjs/tailwindcss"],
+  modules: ["@nuxtjs/supabase", "@formkit/nuxt", "@nuxtjs/tailwindcss", "@nuxt/icon"],
   supabase: {
     redirect: false,
   },
