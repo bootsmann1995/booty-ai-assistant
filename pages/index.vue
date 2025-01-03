@@ -1,98 +1,89 @@
 <template>
-  <div id="smooth-wrapper">
-    <div id="smooth-content">
-      <!--- ALL YOUR CONTENT HERE --->
-      <div class="bg-gunmetal-500 px-6 pt-[120px] gradient-1">
-        <div class="grid grid-cols-12 grid-rows-2 h-full">
-          <div
-            class="col-span-4 flex justify-end items-start flex-col"
-            data-lag="0.2"
-          >
-            <p
-              class="text-baby-powder-500 font-roboto lg:text-[20px] font-thin"
-            >
-              Meet Emma, your friendly AI assistant who's here to transform your
-              learning experience.
-            </p>
-            <NuxtLink
-              class="mt-2 font-thin lg:text-[16px] relative min-w-24 text-center text-baby-powder-500 py-3 px-0 border-b border-b-baby-powder-500 group"
-              to="/feed"
-            >
-              <span>Start journey</span>
-              <span class="pl-[20px]">-></span>
-              <span
-                class="absolute w-full ease-in-out transition-all duration-500 opacity-10 bg-baby-powder-500 left-0 bottom-0 h-0 group-hover:h-full"
-              ></span>
-            </NuxtLink>
-          </div>
-          <div class="col-start-6 col-span-7 flex items-end">
-            <p
-              data-lag="0.2"
-              class="lg:text-[46px] text-baby-powder-500 font-medium"
-            >
-              Imagine having a dedicated tutor at your fingertips, always ready
-              to guide you through engaging learning experiences.
-            </p>
-          </div>
-          <div
-            ref="animateTextElTrigger"
-            data-lag="0.3"
-            class="col-span-full row-start-2 flex-col gap-y-3 text-baby-powder-500 flex items-center justify-center relative"
-          ></div>
-        </div>
-      </div>
-      <div
-        ref="animateTrigger"
-        class="h-screen bg-gunmetal-500 gradient-2 -mt-[1px] relative"
+  <div class="gradient-1 px-5 min-h-screen w-full pt-[100px]">
+    <h1
+      ref="headline"
+      class="text-white text-3xl text-center opacity-0 translate-y-12"
+    >
+      <template v-if="user"> Hi {{ user.email }} </template>
+    </h1>
+    <div
+      ref="text"
+      class="text-white text-center opacity-0 translate-y-12 mt-3"
+    >
+      <p class="text-white">
+        Welcome back to your educational assistant. What are you waiting for?
+        Start learning now!
+      </p>
+    </div>
+    <div
+      ref="button"
+      class="mt-8 flex items-center justify-center opacity-0 translate-y-12"
+    >
+      <NuxtLink
+        to="/feed"
+        class="relative flex items-center h-9 bg-orange-400 text-white px-4 rounded-md"
       >
-        <div
-          ref="animateEl"
-          class="absolute left-1/2 w-52 -translate-x-1/2 top-1/4 -translate-y-1/2 aspect-video bg-amber-600"
-        ></div>
-      </div>
-      <div
-        class="h-[200vh] bg-gunmetal-500 gradient-3 -mt-[1px] -left-[20px]"
-      ></div>
+        <span class="relative z-[2]">Go to feed</span>
+      </NuxtLink>
     </div>
   </div>
 </template>
-<script setup lang="ts" async>
+<script setup lang="ts">
 import { gsap } from "gsap";
-const gs = useGsap();
-const animateTrigger = ref(null);
-const animateEl = ref(null);
 
-const animateTextElTrigger = ref(null);
-const animateTextEl1 = ref(null);
-const animateTextEl2 = ref(null);
+const user = ref();
+const headline = ref();
+const text = ref();
+const button = ref();
 
-onMounted(() => {
-  animateItem();
+const { getUser } = useSupabaseFunc();
+
+onMounted(async () => {
+  user.value = await getUser();
+  animateHeadline();
+  animateText();
+  animateButton();
 });
-
-const animateItem = () => {
-  if (animateTrigger.value && animateEl.value) {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        scrub: 1,
-        pin: true,
-        trigger: animateTrigger.value,
-        start: "50% 50%",
-        end: "bottom -100%",
-      },
-    });
-
-    tl.to(animateEl.value, {
-      width: "100vw",
-      translateY: "0%",
-      top: "50%",
-    });
-  }
-};
 
 definePageMeta({
   middleware: ["auth"],
 });
+
+const animateHeadline = () => {
+  if (headline.value) {
+    console.log("animate");
+    gsap.to(headline.value, {
+      opacity: 1,
+      y: 0,
+      ease: "power4.inOut",
+      duration: 2,
+    });
+  }
+};
+
+const animateText = () => {
+  if (text.value) {
+    gsap.to(text.value, {
+      opacity: 1,
+      y: 0,
+      ease: "power4.inOut",
+      duration: 2,
+      delay: 0.2,
+    });
+  }
+};
+
+const animateButton = () => {
+  if (button.value) {
+    gsap.to(button.value, {
+      opacity: 1,
+      y: 0,
+      ease: "power4.inOut",
+      duration: 2,
+      delay: 0.4,
+    });
+  }
+};
 </script>
 <style lang="scss">
 .gradient-1 {

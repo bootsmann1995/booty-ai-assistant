@@ -1,5 +1,19 @@
 <template>
   <div>
+    <div
+      v-if="isLoading"
+      class="fixed left-0 top-0 bottom-0 right-0 w-screen h-screen z-30 flex items-center justify-center"
+    >
+      <div
+        class="absolute left-0 top-0 bg-white opacity-80 w-full h-full"
+      ></div>
+      <div>
+        <Icon
+          name="svg-spinners:bars-scale-middle"
+          class="text-orange-400 w-10 h-10"
+        ></Icon>
+      </div>
+    </div>
     <div>
       <div class="h-screen">
         <Swiper
@@ -145,6 +159,7 @@
 <script lang="ts" setup>
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
+
 const { getUser, updateUser } = useSupabaseFunc();
 const user = useState("user");
 const isLoading = ref(true);
@@ -176,18 +191,24 @@ const fetchNextItem = () => {
 };
 
 const fetchUser = async () => {
-  if (!user.value) {
-    user.value = await getUser();
-    isLoading.value = false;
-    fetchEducationalNews();
-  } else {
-    isLoading.value = false;
+  user.value = await getUser();
+
+  if (user.value) {
+    await fetchEducationalNews();
   }
 
-  getLastFeed();
+  isLoading.value = false;
+
+  console.log("RUN");
+
+  await getLastFeed();
 };
 
 const getLastFeed = async () => {
+  console.log("after", user.value?.database?.data.education_points);
+  // while (user.value?.database?.data.education_points == null) {
+  //   console.log("huh", user.value, user.value.database);
+  // }
   user.value?.database?.data.education_points.forEach((point: any) => {
     if (point?.isLastUpdated === true) {
       feed.value.push({

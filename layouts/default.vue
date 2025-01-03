@@ -1,5 +1,7 @@
 <template>
   <div class="font-roboto">
+    <NuxtPage />
+
     <div
       class="fixed bg-white h-[62px] w-full left-0 bottom-0 z-10 px-4 flex gap-7 justify-center items-center"
     >
@@ -22,7 +24,6 @@
         <Icon name="mingcute:add-fill" class="w-7 h-7 text-orange-400" />
       </NuxtLink>
     </div>
-    <NuxtPage />
   </div>
 </template>
 <script setup lang="ts"></script>
