@@ -125,9 +125,11 @@
                         pointRemoved.indexOf(item.point.id) === -1 &&
                         !isRemovingPoint
                       "
+                      class="flex items-center"
                       @click="removePoint(item.point.id)"
                     >
-                      Stop this feed
+                      <Icon name="maki:cross" class="text-white mr-1"></Icon>
+                      Remove from your feed
                     </button>
                     <div
                       v-if="
