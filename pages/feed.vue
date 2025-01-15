@@ -31,8 +31,9 @@
                 muted
                 autoplay
                 loop
+                fullscreen="false"
                 controls="false"
-                class="absolute left-0 top-0 bottom-0 right-0 -z-1 h-full w-full object-cover blur-lg opacity-60"
+                class="absolute left-0 top-0 bottom-0 right-0 -z-1 h-full w-full object-cover blur-lg opacity-60 user-select-none pointer-events-none"
                 src="~/assets/video/bg-video.mp4"
               ></video>
               <div class="relative z-10">
@@ -100,7 +101,8 @@
                 autoplay
                 loop
                 controls="false"
-                class="absolute left-0 top-0 bottom-0 right-0 -z-1 h-full w-full object-cover blur-lg opacity-60"
+                fullscreen="false"
+                class="absolute left-0 top-0 bottom-0 right-0 -z-1 h-full w-full object-cover blur-lg opacity-60 user-select-none pointer-events-none"
                 src="~/assets/video/bg-video.mp4"
               ></video>
               <div class="relative z-10">
